@@ -102,6 +102,18 @@ public abstract class AbstractActor {
             incBlockCount();
         }
 
+        public boolean isBlocked() {
+            return isBlocked;
+        }
+
+        public boolean isEmpty() {
+            return isBlocked;
+        }
+
+        public boolean isFull() {
+            return isBlocked;
+        }
+
         protected synchronized void block() {
             if (isBlocked) {
                 return;
@@ -123,10 +135,19 @@ public abstract class AbstractActor {
         private long permissions = 0;
 
         public AsyncSemaPort(long permissions) {
-            release(permissions);
+            setPermissions(permissions);
         }
 
         public AsyncSemaPort() {
+        }
+
+        public synchronized void setPermissions(long newPermissionsValue) {
+            permissions = newPermissionsValue;
+            if (permissions > 0) {
+                unBlock();
+            } else {
+                block();
+            }
         }
 
         public synchronized void release(long delta) {
