@@ -111,7 +111,7 @@ public abstract class AbstractActor {
         }
 
         public boolean isFull() {
-            return isBlocked;
+            return !isBlocked;
         }
 
         protected synchronized void block() {
@@ -222,29 +222,25 @@ public abstract class AbstractActor {
         }
 
         @Override
-        public void onError(Throwable throwable) {
-            synchronized (AbstractActor.this) {
-                if (completeSignalled) {
-                    return;
-                }
-                if (throwable == null) {
-                    throw new NullPointerException();
-                }
-                completeSignalled = true;
-                completionException = throwable;
-                unBlock();
+        public synchronized void onError(Throwable throwable) {
+            if (completeSignalled) {
+                return;
             }
+            if (throwable == null) {
+                throw new NullPointerException();
+            }
+            completeSignalled = true;
+            completionException = throwable;
+            unBlock();
         }
 
         @Override
         public void onComplete() {
-            synchronized (AbstractActor.this) {
-                if (completeSignalled) {
-                    return;
-                }
-                completeSignalled = true;
-                unBlock();
+            if (completeSignalled) {
+                return;
             }
+            completeSignalled = true;
+            unBlock();
         }
 
         public synchronized T poll() {
